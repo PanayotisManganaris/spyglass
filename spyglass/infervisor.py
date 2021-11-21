@@ -1,10 +1,7 @@
 """visualization tools for evaluating the performance of regression models"""
-import os
-import sys
-
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+from matplotlib.widgets import Button
+from matplotlib.text import Annotation
 
 class click_fig():
     def __init__():
@@ -56,7 +53,7 @@ class click_fig():
         ax.cla() #clear artist objects from axes
         redraw(axcp)
 
-    def annotscatplot(x, y, labels, ax=None):
+    def testplot(x, y, labels, ax=None):
         if not ax:
             ax = plt.gca()
         #add a clear all button to the low left corner
