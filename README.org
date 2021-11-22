@@ -1,0 +1,70 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:t toc:t todo:t |:t
+#+title: README
+#+date: <2021-11-21 Sun>
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 27.2 (Org mode 9.5)
+#+cite_export:
+* Introduction
+Spyglass is a figure scripting interface branching from
+the first two levels of the [[id:a3ae4a0f-c61e-4f47-9006-846a070e1025][matplotlib architecture]], parallel to
+pyplot. Spyglass is meant to provide boilerplate pyplot doesn't, but it
+is intended to do so properly, conveniently, reliably, and reproducibly.
+
+The specific figure renders it is intended to provide are those of the
+standard kind used in the manuscripts of the Purdue University
+Material Science and Engineering Department's Mannodi Research Group
+
+Each convenience class is intended to enable one-liner data/model
+analysis using interactive pyplot scripts. They also retain
+compatibility with stateless axes artist methods for the production of fully
+refined publication quality figures.
+* Curry over Factory
+following the terminology of [[https://stackoverflow.com/questions/18284296/matplotlib-using-a-figure-object-to-initialize-a-plot][this stackoverflow answer]], Spyglass is
+intended to provide curry-like plot methods that offer control of
+their assignment using axes pass-through and who's arguments can be
+used to customize labels in standard ways, but provide defaults for
+rapid throughput inquiry.
+* TODO model evaluation
+** TODO ml regressor parity plots
+* TODO data space comprehension
+** TODO pca biplots
+** chemistry domain cross tabulations
+** Matminer/Dscribe feature visualization
+* TODO animation
+* TODO DFT Simulator results extractions
+** Spagetti Plots
+** DOS plots
+** phonon states
+** optical spectrum analyzer
+* TODO 3d lattice
+** supercell visualizer
+** cupercell with time evolution
+* Usage Examples
+** user import dependencies
+#+begin_src python :exports both :results raw drawer
+  import numpy as np
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import spyglass as sg
+#+end_src
+* demos
+** plot interactively
+object oriented and intuitive graph generation calls should be possible
+#+begin_src ipython :session :exports both :results raw drawer
+  plt.ion()
+#+end_src
+** plot noninteractively
+#+begin_src ipython :session :exports both :results raw drawer
+  
+#+end_src
+** plot explicitly
+#+begin_src ipython :session :exports both :results raw drawer
+  
+#+end_src
+** plot implicitly
