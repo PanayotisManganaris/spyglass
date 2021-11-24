@@ -21,6 +21,8 @@ from matplotlib.patches import Ellipse
 
 from matplotlib import colormaps as cmapreg # fixed default colormaps registry
 
+import numpy as np
+
 class EDAFigure(Figure):
     """
     matplotlib.figure.Figure subclass containing methods configuring
@@ -143,7 +145,7 @@ class interaxes(Axes):
         self.boilerplate = draw_activescatter
         self.boilerplate()
 
-  def biplot(components, PCs, transform_matrix, dim_labels=None, N_labels=[], ax=None, cbar_kw={}, cbarlabel="", **kwargs):
+  def biplot(components, PCs, transform_matrix, dim_labels=None, N_labels=[], cbar_kw={}, cbarlabel="", **kwargs):
       """
       modify or create and return axis containing cross-section of pca space as
       scatter plot with projection of orignal dimensions onto the plane of major
@@ -186,9 +188,7 @@ class interaxes(Axes):
       transform_matrix is necssary for quantifying the contribution of each dimension
       to the principal components being plotted
       """
-      if not ax:
-          ax = plt.gca()
-          #Number of dimensions to biplot
+      #Number of dimensions to biplot
       n = transform_matrix.shape[0]
       #plot the plane of major variance
       xs = PCs.iloc[:,components[0]]
