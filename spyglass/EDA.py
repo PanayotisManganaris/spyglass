@@ -20,7 +20,7 @@ from spyglass.utils import pickle_paste
 
 from matplotlib import colormaps as cmapreg # fixed default colormaps registry
 
-class boilerplate(Figure):
+class EDAFigure(Figure):
     """
     matplotlib.figure.Figure subclass containing methods configuring
     the figure display for Exploratory Data Analysis.
@@ -76,8 +76,7 @@ class interaxes(Axes):
         """
         def onclickclear(event):
             self.cla() #clear artist objects from axes
-            #draw(self)
-            self.template_func()
+            self.boilerplate() #draw the chosen boilerplate axes
         return onclickclear
             
     def makeannotate(self, label, labelx, labely):#, datax, datay):
@@ -133,14 +132,12 @@ class interaxes(Axes):
         self.y = y
         self.labels = datalabels
         #plot data
-        def template():
+        def draw_activescatter():
             self.scatter(self.x, self.y, picker=True)
             self.set_xlabel("X")
             self.set_ylabel("Y")
             self.grid()
-        self.template_func = template
-        self.template_func()
+        self.boilerplate = draw_activescatter
+        self.boilerplate()
 
-
-        
 register_projection(interaxes)
