@@ -58,13 +58,15 @@ right handler class from the user-facing superclass instantiation
 * TODO 3d lattice
 ** supercell visualizer
 ** cupercell with time evolution
-* Usage example:
+* Usage examples:
 #+begin_src python :session :exports both :results none
   import numpy as np
   import pandas as pd
   import matplotlib.pyplot as plt
   import spyglass.EDA
-
+  #+end_src
+** Basic EDAfig and interaxes invocation
+#+begin_src python :session :exports both :results none  
   eda = spyglass.EDA.EDAFigure
 
   xy = np.random.random((10,2))
@@ -75,6 +77,26 @@ right handler class from the user-facing superclass instantiation
   ax.activescatter(xy[:,0], xy[:,1], labels)
   plt.show()
 #+end_src
+** biplot example
+#+begin_src python :session :exports both :results none
+  from numpy.random import default_rng
+  rng = default_rng()
+  intpicks = rng.integers(low=1, high=3, size=12)
+  xy = np.random.random((12,12))
+  xydf = pd.DataFrame(xy)
+  ulabels = ["Label for instance #{0}".format(i) for i in xydf.index]
+  clabels = ["cluster #{0}".format(i) for i in intpicks]
+  uxydf = pd.concat([xydf, pd.Series(ulabels)], axis=1)
+  cxydf = pd.concat([xydf, pd.Series(clabels)], axis=1)
+
+  eda = spyglass.EDA.EDAFigure
+  fig, ax = plt.subplots(1,1, FigureClass=eda, subplot_kw={'projection':'interactive'})
+  fig.add_button()
+  ax.biplot([0,1], cxydf, xydf, dim_labels=None,
+            dataspan=slice(0,12))
+  plt.show()
+#+end_src
+
 ** test other styles
 *** plot interactively
 object oriented and intuitive graph generation calls should be possible

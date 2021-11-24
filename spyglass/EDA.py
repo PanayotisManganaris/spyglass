@@ -10,7 +10,9 @@ to set an interactive backend
 
 use matplotlib.use(Agg) or %matplotlib inline to receive hard-copy figure files
 """
-import matplotlib.pyplot as plt
+from spyglass.utils import recolumn
+from spyglass.utils import get_cmap
+
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.projections import register_projection # proper axes patching method
@@ -22,6 +24,7 @@ from matplotlib.patches import Ellipse
 from matplotlib import colormaps as cmapreg # fixed default colormaps registry
 
 import numpy as np
+import pandas as pd
 
 class EDAFigure(Figure):
     """
@@ -51,7 +54,7 @@ class EDAFigure(Figure):
         #the figure before any additional -- this is bad.
         self.button_clear_all.on_clicked(callback)
     
-class interaxes(Axes):
+class Interaxes(Axes):
     """
     matplotlib.axes.Axes class containing methods defining user
     annotate on click actions on member artist objects. It also
@@ -104,7 +107,7 @@ class interaxes(Axes):
         #axis.annotate(label, xy=(x,y), xytext=xy,
         #             xycooords='data', #textcoords="offset points", #at what ref, where ref
 
-    def onclickdot(self, event): #self is not defined?!??!
+    def onclickdot(self, event):
         """
         define the click on scatter plot marker behavior
         Notice: datalabels must be ordered with data coordinates for meaningful assignment
@@ -117,9 +120,15 @@ class interaxes(Axes):
         offset = 0
         #if dots overlap, matplotlib returns returns a list of clicked indices.
         #parse the list:
+        if isinstance(self.labels, pd.DataFrame):
+            labels = self.labels.values.tolist()
+        else:
+            labels = self.labels
+            
         for i in ind:
+            print(i)
             #Assign a label to its corresponding data point
-            label = self.labels[i]
+            label = labels[i]
             # add the text annotation to the axes
             self.makeannotate(label,
                               annotx + offset,
@@ -145,7 +154,8 @@ class interaxes(Axes):
         self.boilerplate = draw_activescatter
         self.boilerplate()
 
-    def biplot(components, PCs, transform_matrix, dim_labels=None, N_labels=[], cbar_kw={}, cbarlabel="", **kwargs):
+    def biplot(self, components, PCs, transform_matrix, dim_labels=None,
+               dataspan=None, cbar_kw={}, cbarlabel="", **kwargs):
         """
         modify or create and return axis containing cross-section of pca space as
         scatter plot with projection of orignal dimensions onto the plane of major
@@ -157,88 +167,96 @@ class interaxes(Axes):
         2-length list of integers from 0 to D-1. Selects 2 components to be scatter
         plotted against each other.
         PCs
-        D-colummn DataFrame where each column is a principal component.
+        D+L-colummn DataFrame where each column from 0 to D is a principal component.
+        If L is greater than zero, D+1 to L are used as marker labels.
         transform_matrix
         DxD array of component weights summarizing the contribution of each dimension to
         each PC. Meant for use with PCA by sklearn.Decomposition.PCA.components_
         dim_labels
         D-length list of dimension labels corresponding the axes of the original
         data-space transformed in the PCA.
-        N_labels
-        Either:
-        1. N-length pandas Series of unique labels to individually annotate each datapoint 
-           Optionally, use cbar* args to control continuous coloration. String labels will be
-           white.
-        2. N-length list of nonunique labels to be annotate clusters of datapoints
-           use with cbar* args to control descrete coloration
-        3. None. Datapoints will be white and noninteractive
-    
+        dataspan
+        a range of indices written as a slice object representing the columns of the
+        passed PCs DataFrame that are actual data. example: (PCs 0 to 11) is slice(0:12).
+        The inverse of the slice identifies columns used as labels. If None biplot uses
+        PCs.index as marker labels.
+
         Utility Args:
         -------------
-        ax
-        A `matplotlib.axes.Axes` instance on which the principal coordinates are scattered.
-        If not provided, use current axes or create a new one.  Optional.
         cbar_kw
-        A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
+        A dictionary with arguments to matplotlib.Figure.colorbar.  Optional.
         cbarlabel
         The label for the colorbar.  Optional.
         ,**kwargs
-        All other arguments are forwarded to `scatter`.
-    
-        transform_matrix is necssary for quantifying the contribution of each dimension
-        to the principal components being plotted
+        All other arguments are forwarded to scatter.
+
+        transform_matrix is necessary for quantifying the contribution of each dimension
+        to the principal components being plotted. if not available, don't use this.
         """
-        #Number of dimensions to biplot
+        # Number of dimensions to biplot
         n = transform_matrix.shape[0]
-        #plot the plane of major variance
-        xs = PCs.iloc[:,components[0]]
-        ys = PCs.iloc[:,components[1]]
-        scalex = 1.0/(xs.max() - xs.min())
-        scaley = 1.0/(ys.max() - ys.min())
-        N_labels = np.array(N_labels)
-        unique = np.unique(N_labels)
-        #wip:
-        #color and annotate coords by discrete scale, disp scale
-        if (N_labels.size > unique.size) & (unique.size > 1): 
-            #TODO if scale consists of unique strings color discrete strings uniquely + label
-            scatterplane = self.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
-            cbar = self.figure.colorbar(scatterplane, ax=self, **cbar_kw)
-            cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
-        #color and annotate coords by continuous scale, disp scale
-        elif (N_labels.size == unique.size) & (unique.size > 1):
-            groups = PCs.groupby(
-            #TODO if scale consists of unique strings label without color
-            #if numbers, make and apply colorscale as well as label
-            scatterplane = self.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
-            cbar = self.figure.colorbar(scatterplane, ax=self, **cbar_kw)
-            cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
-        #quick view, no scale
-        elif N_labels.size == 0:
-            scatterplane = self.scatter(xs * scalex, ys * scaley, **kwargs)
+        # ensure PCs are uniquely labeled (in case of augmented pcadf)
+        PCs.columns = pd.Series(recolumn(PCs.columns))
+        # pass labels to interaxes
+        if not dataspan:
+            PCdata = PCs
+            self.labels = PCs.index
         else:
-            raise ValueError("N_labels badly argued. see biplot docstring")
-        #plot and label projection of original dimensions on plane
+            PCdata = PCs.iloc[:, dataspan]
+            self.labels = PCs.loc[:, ~PCs.columns.isin(PCs.columns[dataspan])]
+        # compute normalized coords about zero on plane of major variance
+        scalePCdata = PCdata/(PCdata.max()-PCdata.min())
+        self.scalexy = scalePCdata.iloc[:, [components[0], components[1]]]
+        # use for determining cluster color or unique color behavior
+        self.uniqL = self.labels.drop_duplicates()
+        # compute projections of original dimensions on plane
         slice1 = transform_matrix[components[0]]
         slice2 = transform_matrix[components[1]]
         proj_slice_transposed = np.stack([slice1, slice2], axis=1)
         xs_weight = proj_slice_transposed[:,0]
         ys_weight = proj_slice_transposed[:,1]
+        #todo: if multiiple label columns exist, merge them into a single \n separated column
         def draw_biplot():
+            #color and annotate coords by discrete scale, disp scale
+            if (self.labels.size > self.uniqL.size) & (self.uniqL.size > 1): 
+                clusterxy = pd.concat([self.scalexy, self.labels], axis=1)
+                groups = clusterxy.groupby(self.labels.columns.values[0])
+                for name, group in groups:
+                    self.scatter(group.iloc[:, 0], group.iloc[:, 1],
+                                 label = name, picker=True, **kwargs)
+                self.legend()
+                #cbar = self.figure.colorbar(self, **cbar_kw)
+                #cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+            #color and annotate coords by continuous scale, disp scale
+            elif (self.labels.size == self.uniqL.size) & (self.uniqL.size > 1):
+                #TODO if scale consists of unique strings label without color
+
+                #if numbers, make and apply colorscale as well as label
+                self.scatter(xs * scalex, ys * scaley, c = self.labels, **kwargs)
+                cbar = self.figure.colorbar(self, **cbar_kw)
+                cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+            #quick view, no scale
+            elif self.labels.size == 0:
+                self.scatter(xs * scalex, ys * scaley, **kwargs)
+            else:
+                raise ValueError("datalabels badly argued. see biplot docstring")
+            #plot and label the original dimension projections
             for i in range(n):
-                ax.arrow(0, 0, xs_weight[i], ys_weight[i], color = 'r', alpha = 0.5)
+                self.arrow(0, 0, xs_weight[i], ys_weight[i], color = 'r', alpha = 0.5)
                 if dim_labels is None:
                     self.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2,
                               "Var"+str(i+1), color = 'g', ha = 'center', va = 'center')
                 else:
                     self.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2,
                               dim_labels[i], color = 'g', ha = 'center', va = 'center')
-                    self.set_xlabel("PC{}".format(components[0]))
-                    self.set_ylabel("PC{}".format(components[1]))
-                    self.grid()
-        self.boiilerplate = draw_biplot
-        self.draw_biplot()
+            #set decorations
+            self.set_xlabel("PC{}".format(components[0]))
+            self.set_ylabel("PC{}".format(components[1]))
+            self.grid()
+        self.boilerplate = draw_biplot
+        self.boilerplate()
 
-    def pairplot(truths, predictions, N_labels=[], **kwargs):
+    def pairplot(truths, predictions, datalabels=[], **kwargs): #something broken?
         """
         modify or create and return axis containing pairity plot of
         predicted vs true values for evaluating accuracy of regression models
@@ -253,20 +271,20 @@ class interaxes(Axes):
         the labels used to guide the model training -- uses test labels to validate model accuracy
         may be a pandas series, array, or list. Should be of the same type as preds.
 
-        N_labels
+        datalabels
         A list equal to the length of the datapoints. Optional.
     
         Utility Args:
         -------------
         ax
-        A `matplotlib.axes.Axes` instance on which the parity coordinates are scattered.
+        A matplotlib.axes.Axes instance on which the parity coordinates are scattered.
         If not provided, use current axes or create a new one.  Optional.
         ,**kwargs
-        All other arguments are forwarded to `scatter`.
+        All other arguments are forwarded to scatter.
         """
         #intake coordinates, make as list
-        N_labels = np.array(N_labels)
-        unique = np.unique(N_labels)
+        self.labels = np.array(datalabels)
+        self.uniqL = np.self.uniqL(datalabels)
         a = [-175,0,125]
         b = [-175,0,125]
                 
@@ -274,9 +292,9 @@ class interaxes(Axes):
         testing_parity = ax.scatter(test_x, test_y, c = 'lawngreen', **kwargs)
     
     
-    
-        ax1.plot(b, a, c='k', ls='-')
-        ax1.xaxis.set_tick_params(labelsize=20)
+        def draw_pairplot():
+            ax1.plot(b, a, c='k', ls='-')
+            ax1.xaxis.set_tick_params(labelsize=20)
         ax1.yaxis.set_tick_params(labelsize=20)
         ax1.scatter(Prop_train_temp[:], Pred_train_temp[:], c='orangered',
                     marker='s', s=60, edgecolors='dimgrey', alpha=0.9, label='Training')
@@ -292,6 +310,7 @@ class interaxes(Axes):
         ax.set_yticks([5.5, 6.0, 6.5, 7.0])
         ax.set_title('Lattice Constant ($\AA$)', c='k', fontsize=20, pad=12)
         ax.legend(loc='upper left',ncol=1, frameon=True, prop={'family':'Arial narrow','size':12})
-
+        self.boiilerplate = draw_pairplot
+        self.draw_pairplot()
       
-register_projection(interaxes)
+register_projection(Interaxes)
