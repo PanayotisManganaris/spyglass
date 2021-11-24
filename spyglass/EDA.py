@@ -41,13 +41,12 @@ class boilerplate(Figure):
             button_text = "Clear\nAnnotations"
         ax_clear_all = self.add_axes([0.0, 0.0, 0.1, 0.05], facecolor='r')
         #add a clear all button to the low left corner
-        button_clear_all = Button(ax_clear_all, button_text)
+        self.button_clear_all = Button(ax_clear_all, button_text)
         #link event handler function to the button
         callback = self.axes[0].make_onclickclear()
         #notice this depends on the boilerplat axes being defined on
         #the figure before any additional -- this is bad.x
-        button_clear_all.on_clicked(callback)
-        return button_clear_all
+        self.button_clear_all.on_clicked(callback)
     
 class interaxes(Axes):
     """

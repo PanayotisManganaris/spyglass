@@ -82,9 +82,7 @@ right handler class from the user-facing superclass instantiation
   labels = ["Label for instance #{0}".format(i) for i in np.arange(xy.shape[0])]
 
   fig, ax = plt.subplots(1,1, FigureClass=ieda, subplot_kw={'projection':'interactive'})
-  button = fig.add_button("piss")
-  
-  #  fig.link_interaction()
+  fig.add_button()
   ax.activescatter(xy[:,0], xy[:,1], labels)
 
   plt.show()
