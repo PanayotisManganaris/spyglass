@@ -72,9 +72,6 @@ class interaxes(Axes):
     def __init__(self, *args, **kwargs):                             
         super().__init__(*args, **kwargs) #takes all axes args, exposes          
                                           #artists + pyplot interface            
-        self.labels = []
-        self.x = []
-        self.y = []
         #link event handler function to the display
         self.figure.canvas.mpl_connect('pick_event', self.onclickdot)
 
@@ -126,9 +123,9 @@ class interaxes(Axes):
         Should work with subplots and interactive script syntax
         """
         #plot data
-        self.x.extend(x)
-        self.y.extend(y)
-        self.labels.extend(datalabels)
+        self.x = x
+        self.y = y
+        self.labels = datalabels
         self.scatter(x, y, picker=True)
         self.set_xlabel("X")
         self.set_ylabel("Y")
