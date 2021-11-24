@@ -58,18 +58,7 @@ right handler class from the user-facing superclass instantiation
 * TODO 3d lattice
 ** supercell visualizer
 ** cupercell with time evolution
-* Usage Examples
-#+begin_src python :session :exports both :results raw drawer
-  import numpy as np
-  import pandas as pd
-  import matplotlib.pyplot as plt
-  from spyglass.EDA import boilerfig, activeannots
-#+end_src
-
-#+RESULTS:
-:results:
-:end:
-* Ideal usage example:
+* Usage example:
 #+begin_src python :session :exports both :results none
   import numpy as np
   import pandas as pd

@@ -16,7 +16,8 @@ from matplotlib.axes import Axes
 from matplotlib.projections import register_projection # proper axes patching method
 from matplotlib.widgets import Button
 from matplotlib.text import Annotation
-from spyglass.utils import pickle_paste
+from matplotlib.transforms import blended_transform_factory
+from matplotlib.patches import Ellipse
 
 from matplotlib import colormaps as cmapreg # fixed default colormaps registry
 
@@ -79,48 +80,50 @@ class interaxes(Axes):
             self.boilerplate() #draw the chosen boilerplate axes
         return onclickclear
             
-    def makeannotate(self, label, labelx, labely):#, datax, datay):
+    def makeannotate(self, label, labelx, labely):
         """ create and add text to axes """
-        text_annotation = Annotation(label, xy=(labelx, labely), #xytext=(labelx, labely),
-                                     xycoords='data',
+        el = Ellipse((0, 0), 10, 20, facecolor="0.8", alpha=0.5)
+        bboxspec = dict(boxstyle="round", fc="0.8", ec="none")
+        arrowspec = dict(arrowstyle="wedge,tail_width=1.",
+                         fc="0.8", ec="none",
+                         patchA=None,
+                         patchB=el,
+                         relpos=(0.8,0.5))
+        trans = blended_transform_factory(x_transform=self.transAxes,
+                                          y_transform=self.transData)
+        text_annotation = Annotation(label, xy=(labelx, labely),  #what, at what
+                                     xytext=(labelx, labely), #where
+                                     xycoords=trans, #x-position adaptive
                                      textcoords="offset points",
-                                     bbox=dict(boxstyle="round", fc="w"), #what style
-                                     arrowprops=dict(arrowstyle="->")) #at what style
+                                     bbox=bboxspec, #what style
+                                     arrowprops=arrowspec) #at what style
         self.add_artist(text_annotation)
         #alternative for less deps?
-        #axis.annotate(label, xy=(x,y), xytext=xy, #what, at what, where
+        #axis.annotate(label, xy=(x,y), xytext=xy,
         #             xycooords='data', #textcoords="offset points", #at what ref, where ref
-        
-                            
+
     def onclickdot(self, event): #self is not defined?!??!
         """
         define the click on scatter plot marker behavior
         Notice: datalabels must be ordered with data coordinates for meaningful assignment
         """
-        ind = event.ind #get index of picked coords -- conveninent
+        ind = event.ind #get index of picked marker coords -- convenient
         #save clicked coordinates to position text
         annotx = event.mouseevent.xdata
         annoty = event.mouseevent.ydata
-        #save dot coordinates to point arrow
-        #dotx = xy[ind, 0]
-        #doty = xy[ind, 1]
         # initialize offset to use in adjusting annotation position
         offset = 0
-        #if dots overlap, matplotlib returns returns a list of clicked indicies.
+        #if dots overlap, matplotlib returns returns a list of clicked indices.
         #parse the list:
         for i in ind:
             #Assign a label to its corresponding data point
             label = self.labels[i]
-            #log if needed
             # add the text annotation to the axes
             self.makeannotate(label,
                               annotx + offset,
-                              annoty + offset,
-                              #dotx,
-                              #doty
-                              )
+                              annoty + offset)
             self.figure.canvas.draw_idle() #force re-draw
-            offset += 0.01 # in case of list, alter offset 
+            offset += 0.05 # in case of list, alter offset 
 
     def activescatter(self, x, y, datalabels): #, x, y, labels, ax=None):
         """
