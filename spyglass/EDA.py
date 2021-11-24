@@ -117,20 +117,26 @@ class interaxes(Axes):
             self.figure.canvas.draw_idle() #force re-draw
             offset += 0.01 # in case of list, alter offset 
 
+    
+            
     def activescatter(self, x, y, datalabels): #, x, y, labels, ax=None):
         """
         Test axes with interactivity. 
         Should work with subplots and interactive script syntax
         """
-        #plot data
+        #place arguments in instance namespace
         self.x = x
         self.y = y
         self.labels = datalabels
-        self.scatter(x, y, picker=True)
-        self.set_xlabel("X")
-        self.set_ylabel("Y")
-        self.grid()
-        
+        #plot data
+        def template():
+            self.scatter(self.x, self.y, picker=True)
+            self.set_xlabel("X")
+            self.set_ylabel("Y")
+            self.grid()
+        self.template_func = template
+        self.template_func()
+
     def makeannotate(self, label, labelx, labely):#, datax, datay):
         """ create and add text to axes """
         text_annotation = Annotation(label, xy=(labelx, labely), #xytext=(labelx, labely),
@@ -151,7 +157,7 @@ class interaxes(Axes):
         def onclickclear(event):
             self.cla() #clear artist objects from axes
             #draw(self)
-            self.activescatter(self.x, self.y, self.labels)
+            self.template_func()
         return onclickclear
         
 register_projection(interaxes)

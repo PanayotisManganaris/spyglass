@@ -69,8 +69,8 @@ right handler class from the user-facing superclass instantiation
 #+RESULTS:
 :results:
 :end:
-* Ideally:
-#+begin_src python :session :exports both :results raw drawer
+* Ideal usage example:
+#+begin_src python :session :exports both :results none
   import numpy as np
   import pandas as pd
   import matplotlib.pyplot as plt
@@ -84,38 +84,8 @@ right handler class from the user-facing superclass instantiation
   fig, ax = plt.subplots(1,1, FigureClass=ieda, subplot_kw={'projection':'interactive'})
   fig.add_button()
   ax.activescatter(xy[:,0], xy[:,1], labels)
-
   plt.show()
 #+end_src
-
-#+RESULTS:
-:results:
-None
-:end:
-
-#+begin_src python :session
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
-
-class ButtonClickProcessor(object):
-    def __init__(self, axes, label):
-        self.button = Button(axes, label)
-        self.button.on_clicked(self.process)
-
-    def process(self, event):
-        print(self.button.label)
-
-fig = plt.figure()
-
-axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
-bnext = ButtonClickProcessor(axnext, "Next")
-
-plt.show()
-#+end_src
-
-#+RESULTS:
-: None
-
 ** test other styles
 *** plot interactively
 object oriented and intuitive graph generation calls should be possible
