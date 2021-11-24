@@ -38,6 +38,13 @@ rapid throughput inquiry.
 :STATUSLOG:
 - State "NEXT"       from "TODO"       [2021-11-22 Mon 12:13]
 :END:
+** ga dataset reader
+*** Smarter Design:
+for multiple plot types callable from the same sort of data that
+utilizes similarly constructed classes that are nontheless
+specialized, use a superclass with =__init_subclass__()= to pick the
+right handler class from the user-facing superclass instantiation
+(registry/prefix search style?)
 * TODO data space comprehension
 ** TODO pca biplots
 ** TODO chemistry domain cross tabulations
@@ -52,28 +59,80 @@ rapid throughput inquiry.
 ** supercell visualizer
 ** cupercell with time evolution
 * Usage Examples
-** user import dependencies
-#+begin_src python :exports both :results raw drawer
+#+begin_src python :session :exports both :results raw drawer
   import numpy as np
   import pandas as pd
   import matplotlib.pyplot as plt
-  import spyglass as sg
+  from spyglass.EDA import boilerfig, activeannots
 #+end_src
-* demos
-** plot interactively
+
+#+RESULTS:
+:results:
+:end:
+* Ideally:
+#+begin_src python :session :exports both :results raw drawer
+  import numpy as np
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import spyglass.EDA
+
+  ieda = spyglass.EDA.boilerplate
+
+  xy = np.random.random((10,2))
+  labels = ["Label for instance #{0}".format(i) for i in np.arange(xy.shape[0])]
+
+  fig, ax = plt.subplots(1,1, FigureClass=ieda, subplot_kw={'projection':'interactive'})
+  button = fig.add_button("piss")
+  
+  #  fig.link_interaction()
+  ax.activescatter(xy[:,0], xy[:,1], labels)
+
+  plt.show()
+#+end_src
+
+#+RESULTS:
+:results:
+None
+:end:
+
+#+begin_src python :session
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
+
+class ButtonClickProcessor(object):
+    def __init__(self, axes, label):
+        self.button = Button(axes, label)
+        self.button.on_clicked(self.process)
+
+    def process(self, event):
+        print(self.button.label)
+
+fig = plt.figure()
+
+axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
+bnext = ButtonClickProcessor(axnext, "Next")
+
+plt.show()
+#+end_src
+
+#+RESULTS:
+: None
+
+** test other styles
+*** plot interactively
 object oriented and intuitive graph generation calls should be possible
 #+begin_src ipython :session :exports both :results raw drawer
   plt.ion()
 #+end_src
-** plot noninteractively
+*** plot noninteractively
 #+begin_src ipython :session :exports both :results raw drawer
   
 #+end_src
-** plot explicitly
+*** plot explicitly
 #+begin_src ipython :session :exports both :results raw drawer
   
 #+end_src
-** plot implicitly
+*** plot implicitly
 * COMMENT Future:
 Matplotlib offers the option to define custom figure classes.
 This might be useful for particular specialty plot kinds like ternary plots?
