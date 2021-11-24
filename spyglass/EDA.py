@@ -44,8 +44,8 @@ class boilerplate(Figure):
         self.button_clear_all = Button(ax_clear_all, button_text)
         #link event handler function to the button
         callback = self.axes[0].make_onclickclear()
-        #notice this depends on the boilerplat axes being defined on
-        #the figure before any additional -- this is bad.x
+        #notice this depends on the boilerplate axes being defined on
+        #the figure before any additional -- this is bad.
         self.button_clear_all.on_clicked(callback)
     
 class interaxes(Axes):
@@ -59,34 +59,40 @@ class interaxes(Axes):
     Annotations appear when plot markers are clicked on an
     interactive backend display canvas.
     """
+    name = 'interactive'
     # The projection must specify a name. This will be used by the
     # user to select the projection,
     # i.e. ``subplot(projection='custom_hammer')``
-    name = 'interactive' #class attribute for index in projections registry
-    #def __init__(self, *args, datalabels, **kwargs):
-    #    super().__init__(*args, **kwargs) #takes all axes args, exposes
-    #                                      #artists + pyplot interface
-    #    self.labels = labels
-    #    #passing the labels to the axes like this works but they are kwargs only!
-
     def __init__(self, *args, **kwargs):                             
         super().__init__(*args, **kwargs) #takes all axes args, exposes          
                                           #artists + pyplot interface            
         #link event handler function to the display
         self.figure.canvas.mpl_connect('pick_event', self.onclickdot)
 
-    #No. Don't want to argue labels in fig, ax init. pass labels to ax
-    #projection that knows how to handle them using scripting interface
-    #so, we need a clickprocessor wrapper...
-
-    #class annotate_marker_on_click(object):
-    #    def __init__(self, datalabel):
-    #        """ defines the namespalce and variable used by the callback """
-    #        self.labels = datalabels
-    #        #link event handler function to the display
-    #        self.figure.canvas.mpl_connect('pick_event', self.onclickdot)
-
-                        
+    def make_onclickclear(self):
+        """
+        function returning a callback closure that defines the "clear all"
+        widget behavior relative to this axes
+        """
+        def onclickclear(event):
+            self.cla() #clear artist objects from axes
+            #draw(self)
+            self.template_func()
+        return onclickclear
+            
+    def makeannotate(self, label, labelx, labely):#, datax, datay):
+        """ create and add text to axes """
+        text_annotation = Annotation(label, xy=(labelx, labely), #xytext=(labelx, labely),
+                                     xycoords='data',
+                                     textcoords="offset points",
+                                     bbox=dict(boxstyle="round", fc="w"), #what style
+                                     arrowprops=dict(arrowstyle="->")) #at what style
+        self.add_artist(text_annotation)
+        #alternative for less deps?
+        #axis.annotate(label, xy=(x,y), xytext=xy, #what, at what, where
+        #             xycooords='data', #textcoords="offset points", #at what ref, where ref
+        
+                            
     def onclickdot(self, event): #self is not defined?!??!
         """
         define the click on scatter plot marker behavior
@@ -117,8 +123,6 @@ class interaxes(Axes):
             self.figure.canvas.draw_idle() #force re-draw
             offset += 0.01 # in case of list, alter offset 
 
-    
-            
     def activescatter(self, x, y, datalabels): #, x, y, labels, ax=None):
         """
         Test axes with interactivity. 
@@ -137,27 +141,6 @@ class interaxes(Axes):
         self.template_func = template
         self.template_func()
 
-    def makeannotate(self, label, labelx, labely):#, datax, datay):
-        """ create and add text to axes """
-        text_annotation = Annotation(label, xy=(labelx, labely), #xytext=(labelx, labely),
-                                     xycoords='data',
-                                     textcoords="offset points",
-                                     bbox=dict(boxstyle="round", fc="w"), #what style
-                                     arrowprops=dict(arrowstyle="->")) #at what style
-        self.add_artist(text_annotation)
-        #alternative for less deps?
-        #axis.annotate(label, xy=(x,y), xytext=xy, #what, at what, where
-        #             xycooords='data', #textcoords="offset points", #at what ref, where ref
-        
-    def make_onclickclear(self):
-        """
-        function returning a callback closure that defines the "clear all"
-        widget behavior relative to this axes
-        """
-        def onclickclear(event):
-            self.cla() #clear artist objects from axes
-            #draw(self)
-            self.template_func()
-        return onclickclear
+
         
 register_projection(interaxes)
