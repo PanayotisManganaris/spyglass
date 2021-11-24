@@ -145,92 +145,95 @@ class interaxes(Axes):
         self.boilerplate = draw_activescatter
         self.boilerplate()
 
-  def biplot(components, PCs, transform_matrix, dim_labels=None, N_labels=[], cbar_kw={}, cbarlabel="", **kwargs):
-      """
-      modify or create and return axis containing cross-section of pca space as
-      scatter plot with projection of orignal dimensions onto the plane of major
-      variance
-
-      Parameters:
-      ----------    
-      components
-      2-length list of integers from 0 to D-1. Selects 2 components to be scatter
-      plotted against each other.
-      PCs
-      D-colummn DataFrame where each column is a principal component.
-      transform_matrix
-      DxD array of component weights summarizing the contribution of each dimension to
-      each PC. Meant for use with PCA by sklearn.Decomposition.PCA.components_
-      dim_labels
-      D-length list of dimension labels corresponding the axes of the original
-      data-space transformed in the PCA.
-      N_labels
-      Either:
-      1. N-length pandas Series of unique labels to individually annotate each datapoint 
-         Optionally, use cbar* args to control continuous coloration. String labels will be
-         white.
-      2. N-length list of nonunique labels to be annotate clusters of datapoints
-         use with cbar* args to control descrete coloration
-      3. None. Datapoints will be white and noninteractive
-
-      Utility Args:
-      -------------
-      ax
-      A `matplotlib.axes.Axes` instance on which the principal coordinates are scattered.
-      If not provided, use current axes or create a new one.  Optional.
-      cbar_kw
-      A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
-      cbarlabel
-      The label for the colorbar.  Optional.
-      ,**kwargs
-      All other arguments are forwarded to `scatter`.
-
-      transform_matrix is necssary for quantifying the contribution of each dimension
-      to the principal components being plotted
-      """
-      #Number of dimensions to biplot
-      n = transform_matrix.shape[0]
-      #plot the plane of major variance
-      xs = PCs.iloc[:,components[0]]
-      ys = PCs.iloc[:,components[1]]
-      scalex = 1.0/(xs.max() - xs.min())
-      scaley = 1.0/(ys.max() - ys.min())
-      N_labels = np.array(N_labels)
-      unique = np.unique(N_labels)
-      #wip:
-      if (N_labels.size > unique.size) & (unique.size > 1): #color and annotate coords by discrete scale, disp scale
-          #TODO if discrete scale consists of unique strings color discrete strings uniquely + label
-          scatterplane = ax.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
-          cbar = ax.figure.colorbar(scatterplane, ax=ax, **cbar_kw)
-          cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
-      elif (N_labels.size == unique.size) & (unique.size > 1): #color and annotate coords by continuous scale, disp scale
-          #TODO if continuous scale consists of unique strings label without color
-          #if numbers, make and apply colorscale as well as label
-          scatterplane = ax.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
-          cbar = ax.figure.colorbar(scatterplane, ax=ax, **cbar_kw)
-          cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
-      elif N_labels.size == 0: #quick view, no scale
-          scatterplane = ax.scatter(xs * scalex, ys * scaley, c = "white", **kwargs)
-      else:
-          raise ValueError("N_labels badly argued. see biplot docstring")
-      #plot and label projection of original dimensions on plane
-      slice1 = transform_matrix[components[0]]
-      slice2 = transform_matrix[components[1]]
-      proj_slice_transposed = np.stack([slice1, slice2], axis=1)
-      xs_weight = proj_slice_transposed[:,0]
-      ys_weight = proj_slice_transposed[:,1]
-      for i in range(n):
-          ax.arrow(0, 0, xs_weight[i], ys_weight[i], color = 'r', alpha = 0.5)
-          if dim_labels is None:
-              ax.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2, "Var"+str(i+1), color = 'g', ha = 'center', va = 'center')
-          else:
-              ax.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2, dim_labels[i], color = 'g', ha = 'center', va = 'center')
-              ax.set_xlabel("PC{}".format(components[0]))
-              ax.set_ylabel("PC{}".format(components[1]))
-              ax.grid()
-
-      return ax
-
-
-
+    def biplot(components, PCs, transform_matrix, dim_labels=None, N_labels=[], cbar_kw={}, cbarlabel="", **kwargs):
+        """
+        modify or create and return axis containing cross-section of pca space as
+        scatter plot with projection of orignal dimensions onto the plane of major
+        variance
+    
+        Parameters:
+        ----------    
+        components
+        2-length list of integers from 0 to D-1. Selects 2 components to be scatter
+        plotted against each other.
+        PCs
+        D-colummn DataFrame where each column is a principal component.
+        transform_matrix
+        DxD array of component weights summarizing the contribution of each dimension to
+        each PC. Meant for use with PCA by sklearn.Decomposition.PCA.components_
+        dim_labels
+        D-length list of dimension labels corresponding the axes of the original
+        data-space transformed in the PCA.
+        N_labels
+        Either:
+        1. N-length pandas Series of unique labels to individually annotate each datapoint 
+           Optionally, use cbar* args to control continuous coloration. String labels will be
+           white.
+        2. N-length list of nonunique labels to be annotate clusters of datapoints
+           use with cbar* args to control descrete coloration
+        3. None. Datapoints will be white and noninteractive
+    
+        Utility Args:
+        -------------
+        ax
+        A `matplotlib.axes.Axes` instance on which the principal coordinates are scattered.
+        If not provided, use current axes or create a new one.  Optional.
+        cbar_kw
+        A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
+        cbarlabel
+        The label for the colorbar.  Optional.
+        ,**kwargs
+        All other arguments are forwarded to `scatter`.
+    
+        transform_matrix is necssary for quantifying the contribution of each dimension
+        to the principal components being plotted
+        """
+        #Number of dimensions to biplot
+        n = transform_matrix.shape[0]
+        #plot the plane of major variance
+        xs = PCs.iloc[:,components[0]]
+        ys = PCs.iloc[:,components[1]]
+        scalex = 1.0/(xs.max() - xs.min())
+        scaley = 1.0/(ys.max() - ys.min())
+        N_labels = np.array(N_labels)
+        unique = np.unique(N_labels)
+        #wip:
+        #color and annotate coords by discrete scale, disp scale
+        if (N_labels.size > unique.size) & (unique.size > 1): 
+            #TODO if discrete scale consists of unique strings color discrete strings uniquely + label
+            scatterplane = self.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
+            cbar = self.figure.colorbar(scatterplane, ax=self, **cbar_kw)
+            cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+        #color and annotate coords by continuous scale, disp scale
+        elif (N_labels.size == unique.size) & (unique.size > 1):
+            groups = PCs.groupby(
+            #TODO if continuous scale consists of unique strings label without color
+            #if numbers, make and apply colorscale as well as label
+            scatterplane = self.scatter(xs * scalex, ys * scaley, c = N_labels, **kwargs)
+            cbar = self.figure.colorbar(scatterplane, ax=self, **cbar_kw)
+            cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+        #quick view, no scale
+        elif N_labels.size == 0:
+            scatterplane = self.scatter(xs * scalex, ys * scaley, **kwargs)
+        else:
+            raise ValueError("N_labels badly argued. see biplot docstring")
+        #plot and label projection of original dimensions on plane
+        slice1 = transform_matrix[components[0]]
+        slice2 = transform_matrix[components[1]]
+        proj_slice_transposed = np.stack([slice1, slice2], axis=1)
+        xs_weight = proj_slice_transposed[:,0]
+        ys_weight = proj_slice_transposed[:,1]
+        def draw_biplot():
+            for i in range(n):
+                ax.arrow(0, 0, xs_weight[i], ys_weight[i], color = 'r', alpha = 0.5)
+                if dim_labels is None:
+                    self.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2, "Var"+str(i+1), color = 'g', ha = 'center', va = 'center')
+                else:
+                    self.text(xs_weight[i] * 1.2, ys_weight[i] * 1.2, dim_labels[i], color = 'g', ha = 'center', va = 'center')
+                    self.set_xlabel("PC{}".format(components[0]))
+                    self.set_ylabel("PC{}".format(components[1]))
+                    self.grid()
+        self.boiilerplate = draw_biplot
+        self.draw_biplot()
+      
 register_projection(interaxes)
