@@ -21,8 +21,6 @@ from matplotlib.text import Annotation
 from matplotlib.transforms import blended_transform_factory
 from matplotlib.patches import Ellipse
 
-from matplotlib import colormaps as cmapreg # fixed default colormaps registry
-
 import numpy as np
 import pandas as pd
 
