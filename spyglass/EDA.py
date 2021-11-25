@@ -124,7 +124,6 @@ class Interaxes(Axes):
             labels = self.labels
             
         for i in ind:
-            print(i)
             #Assign a label to its corresponding data point
             label = labels[i]
             # add the text annotation to the axes
@@ -196,6 +195,7 @@ class Interaxes(Axes):
         # ensure PCs are uniquely labeled (in case of augmented pcadf)
         PCs.columns = pd.Series(recolumn(PCs.columns))
         # pass labels to interaxes
+        # If using augmented pcdf -- make sure no non-numeric columns are passed
         if not dataspan:
             PCdata = PCs
             self.labels = PCs.index
@@ -227,12 +227,15 @@ class Interaxes(Axes):
                 #cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
             #color and annotate coords by continuous scale, disp scale
             elif (self.labels.size == self.uniqL.size) & (self.uniqL.size > 1):
-                #TODO if scale consists of unique strings label without color
-
-                #if numbers, make and apply colorscale as well as label
-                self.scatter(xs * scalex, ys * scaley, c = self.labels, **kwargs)
-                cbar = self.figure.colorbar(self, **cbar_kw)
-                cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+                #if labels consists of unique strings label without color
+                if isinstance(self.labels.dtypes, object): #bit weird?
+                    self.scatter(self.scalexy.iloc[:, 0], self.scalexy.iloc[:, 1],
+                                 picker=True, **kwargs)
+                else: #if numbers, make and apply colorscale as well as label
+                    self.scatter(self.scalexy.iloc[:, 0], self.scalexy.iloc[:, 1],
+                                 c=self.labels, picker=True, **kwargs)
+                    cbar = self.figure.colorbar(self, **cbar_kw)
+                    cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
             #quick view, no scale
             elif self.labels.size == 0:
                 self.scatter(xs * scalex, ys * scaley, **kwargs)

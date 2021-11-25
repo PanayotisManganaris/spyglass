@@ -92,7 +92,7 @@ right handler class from the user-facing superclass instantiation
   eda = spyglass.EDA.EDAFigure
   fig, ax = plt.subplots(1,1, FigureClass=eda, subplot_kw={'projection':'interactive'})
   fig.add_button()
-  ax.biplot([0,1], cxydf, xydf, dim_labels=None,
+  ax.biplot([0,1], uxydf, xydf, dim_labels=None,
             dataspan=slice(0,12))
   plt.show()
 #+end_src
