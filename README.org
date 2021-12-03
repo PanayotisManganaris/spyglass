@@ -96,7 +96,23 @@ right handler class from the user-facing superclass instantiation
             dataspan=slice(0,12))
   plt.show()
 #+end_src
-
+** pairty plot example
+#+begin_src python :session :exports both :results none 
+  xy = np.random.random((8,2))
+  y_pred = xy[:,1] + np.random.normal(0, 1, 8)
+  labels = ["Label for instance #{0}".format(i) for i in np.arange(xy.shape[0])]
+  xyydf = pd.DataFrame([xy, y_pred], index=labels,
+                       columns=['in', 'expected', 'out'], dtype=float)
+  
+  eda = spyglass.EDA.EDAFigure
+  fig, ax = plt.subplots(1,1, FigureClass=eda, subplot_kw={'projection':'interactive'})
+  fig.add_button()
+  #ax.add_diagonal()
+  ax.set_aspect(1)
+  ax.activescatter(x = all_labels, y = all_predictions, grouplabels = all_members, c = 'green')
+  ax.activescatter(x = test_labels, y = test_predictions, grouplabels = test_members, c = 'red')
+  plt.show()
+#+end_src
 ** test other styles
 *** plot interactively
 object oriented and intuitive graph generation calls should be possible
