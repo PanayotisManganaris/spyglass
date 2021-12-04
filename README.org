@@ -108,7 +108,7 @@ right handler class from the user-facing superclass instantiation
   fig, ax = plt.subplots(1,1, FigureClass=eda, subplot_kw={'projection':'interactive'})
   fig.add_button()
   #ax.add_diagonal()
-  ax.set_aspect(1)
+
   ax.activescatter(x = all_labels, y = all_predictions, grouplabels = all_members, c = 'green')
   ax.activescatter(x = test_labels, y = test_predictions, grouplabels = test_members, c = 'red')
   plt.show()

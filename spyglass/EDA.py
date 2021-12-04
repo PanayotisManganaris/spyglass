@@ -80,7 +80,7 @@ class Interaxes(Axes):
         """
         def onclickclear(event):
             self.cla() #clear artist objects from axes
-            self.boilerplate() #draw the chosen boilerplate axes
+            self.drawself() #draw the chosen boilerplate axes
         return onclickclear
             
     def makeannotate(self, label, labelx, labely):
@@ -157,8 +157,8 @@ class Interaxes(Axes):
             self.set_xlabel("X")
             self.set_ylabel("Y")
             self.grid()
-        self.boilerplate = draw_activescatter
-        self.boilerplate()
+        self.drawself = draw_activescatter
+        self.drawself()
 
     def biplot(self, components, PCs, transform_matrix, dim_labels=None,
                dataspan=None, cbar_kw={}, cbarlabel="", **kwargs):
@@ -260,11 +260,8 @@ class Interaxes(Axes):
             self.set_xlabel("PC{}".format(components[0]))
             self.set_ylabel("PC{}".format(components[1]))
             self.grid()
-        self.boilerplate = draw_biplot
-        self.boilerplate()
-
-    def add_diagonal(self):
-        self.axline((0,0), slope=1, color='k', ls='-')
+        self.drawself = draw_biplot
+        self.drawself()
         
     def pairplot(self, truths, predictions, datalabels, **kwargs): #something broken?
         """Construct parity plot of predicted vs true values for evaluating
@@ -297,36 +294,25 @@ class Interaxes(Axes):
             datalabels = xy.index
         #intake coordinates, make as list
         self.labels = np.array(datalabels)
-        self.uniqL = np.self.uniqL(datalabels)
-        a = [-175,0,125]
-        b = [-175,0,125]
-                
-        training_parity = ax.scatter(train_x, train_y, c = 'orangered', **kwargs)
-        testing_parity = ax.scatter(test_x, test_y, c = 'lawngreen', **kwargs)
-
-        #use this bitch:
-        ax.activescatter(x = all_labels, y = all_predictions, grouplabels = all_members, color = 'green')
-        ax.activescatter(x = test_labels, y = test_predictions, grouplabels = test_members, color = 'red')
-
+        #self.uniqL = np.self.uniqL(datalabels)
+        
         def draw_pairplot():
-            ax1.plot(b, a, c='k', ls='-')
-            ax1.xaxis.set_tick_params(labelsize=20)
-        ax1.yaxis.set_tick_params(labelsize=20)
-        ax1.scatter(Prop_train_temp[:], Pred_train_temp[:], c='orangered',
-                    marker='s', s=60, edgecolors='dimgrey', alpha=0.9, label='Training')
-        ax1.scatter(Prop_test_temp[:], Pred_test_temp[:], c='lawngreen',
-                    marker='s', s=60, edgecolors='dimgrey', alpha=0.9, label='Test')
-        te = '%.2f' % rmse_test_latt
-        tr = '%.2f' % rmse_train_latt
-        ax.text(5.96, 5.48, 'Test_rmse = ' + te + ' $\AA$', c='navy', fontsize=16)
-        ax.text(5.93, 5.28, 'Train_rmse = ' + tr + ' $\AA$', c='navy', fontsize=16)
-        ax.set_ylim([5.1, 7.1])
-        ax.set_xlim([5.1, 7.1])
-        ax.set_xticks([5.5, 6.0, 6.5, 7.0])
-        ax.set_yticks([5.5, 6.0, 6.5, 7.0])
-        ax.set_title('Lattice Constant ($\AA$)', c='k', fontsize=20, pad=12)
-        ax.legend(loc='upper left',ncol=1, frameon=True, prop={'family':'Arial narrow','size':12})
-        self.boiilerplate = draw_pairplot
+            self.xselfis.set_tick_params(labelsize=20)
+            self.yselfis.set_tick_params(labelsize=20)
+            self.axline((0,0), slope=1, ls='-')
+            self.activescatter(x=self.test_targets, y=self.test_pred, labels=self.test_labels,
+                               c='orangered', marker='s', s=60, edgecolors='dimgrey', alpha=0.9,
+                               grouplabel='Test', **kwargs)
+            self.activescatter(x=self.all_targets, y=self.all_pred, labels=self.test_labels,
+                               c='lawngreen', marker='x', s=60, edgecolors='dimgrey', alpha=0.9,
+                               grouplabel='Training', **kwargs)
+            self.set_aspect(1, adjustable='datalim')
+            #self.set_xlim([self.get_xlim()[0],self.get_xlim()[1]])
+            #self.set_ylim([self.get_ylim()[0],self.get_ylim()[1]])
+            self.set_xlabel("Prediction")
+            self.set_ylabel("True value")            
+            self.legend(loc='upper left',ncol=1, frameon=True, prop={'family':'Arial narrow','size':12})
+        self.drawself = draw_pairplot
         self.draw_pairplot()
       
 register_projection(Interaxes)
