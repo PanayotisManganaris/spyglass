@@ -92,8 +92,8 @@ class Interaxes(Axes):
                          patchA=None,
                          patchB=el,
                          relpos=(0.8,0.5))
-        trans = blended_transform_factory(x_transform=self.transAxes,
-                                          y_transform=self.transData)
+        # trans = blended_transform_factory(x_transform=self.transAxes,
+        #                                   y_transform=self.transData)
         text_annotation = Annotation(label, xy=(labelx, labely),  #what, at what
                                      xytext=(labelx, labely), #where
                                      xycoords=trans, #x-position adaptive
