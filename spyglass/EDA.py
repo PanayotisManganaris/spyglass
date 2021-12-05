@@ -133,7 +133,9 @@ class Interaxes(Axes):
             self.figure.canvas.draw_idle() #force re-draw
             offset += 0.05 # in case of list, alter offset 
 
-    def activescatter(self, x, y, datalabels, c, marker, cmap, s, edgecolors, alpha, **kwargs):
+    def activescatter(self, x, y, datalabels, self.s=None, self.c=None, self.marker=None, self.cmap=None,
+                      self.norm=None, self.vmin=None, self.vmax=None, self.alpha=None, self.linewidths=None,
+                      self.edgecolors=None, self.plotnonfinite=False, self.data=None **kwargs):
         """
         axes scatter plot with interactivity. 
         Should work with subplots and pyplot interactive script syntax as an axis projection
@@ -142,13 +144,6 @@ class Interaxes(Axes):
         self.x=x
         self.y=y
         self.labels=datalabels
-        if c self.c=c else self.c=None
-        if marker self.marker=marker else self.marker=None
-        if cmap self.cmap=cmap else self.cmap=None
-        if s self.s=s else self.s=None
-        if edgecolors self.edgecolors=edgecolors else self.edgecolors=None
-        if alpha self.alpha=alpha else self.alpha=alpha
-        if grouplabel self.group=grouplabel else self.group=None
         #plot data
         def draw_activescatter():
             self.scatter(self.x, self.y, s=self.s, c=self.c, marker=self.marker,
@@ -263,32 +258,32 @@ class Interaxes(Axes):
         self.drawself = draw_biplot
         self.drawself()
         
-    def pairplot(self, truths, predictions, datalabels, **kwargs): #something broken?
-        """Construct parity plot of predicted vs true values for evaluating
-        accuracy of regression models
+    def pairplot(self, all_truths, all_pred, test_truths, test_pred, labels, **kwargs): #something broken?
+        """
+        Construct parity plot of predicted vs true values for evaluating accuracy of
+        regression models
 
         Parameters:
         ----------
-     
-        predictions
-        Results of applying model to both training and testing datasets. It may be a
-        pandas series, array, or list.
+        all_truths
+        the targets the model aimed for in training + the test truths.
 
-        truths
-        the targets the model aimed for in training + the test truths. It may be a pandas
-        series, array, or list.
+        all_pred
+        Results of applying model to both training and testing datasets.
+
+        test_truths
+        the test truths alone. Technically, could be any secondary set of values. Optional.
+
+        test_pred
+        the test predictions alone. Again, flexible. Optional.
         
-        datalabels
-        A list equal to the length of the datapoints. Optional. Otherwise, index is used.
+        labels
+        A list equal to the length of all_datapoints. Optional.
     
         Utility Args:
         -------------
-        ax
-        A matplotlib.axes.Axes instance on which the parity coordinates are scattered.
-        If not provided, use current axes or create a new one.  Optional.
-        ,**kwargs
+        **kwargs
         All other arguments are forwarded to scatter.
-
         """
         if not datalabels:
             datalabels = xy.index

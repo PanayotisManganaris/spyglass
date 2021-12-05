@@ -103,15 +103,11 @@ right handler class from the user-facing superclass instantiation
   y_test_pred = xy[8:10,1] + np.random.normal(0, 2, 2)
   y_pred = y_train_pred + y_test_pred
   labels = ["Label for instance #{0}".format(i) for i in np.arange(xy.shape[0])]
-  xyypdf = pd.DataFrame([xy, y_pred], index=labels,
-                        columns=['in', 'out', 'expected'], dtype=float)
 
   eda = spyglass.EDA.EDAFigure
   fig, (ax1, ax2) = plt.subplots(1,2, figsize=(3,7), FigureClass=eda, subplot_kw={'projection':'interactive'})
   fig.add_button()
-  ax1.pairplot(xyypdf)
-  #or
-  ax2.pairplot(all_truth = xy[:,1], all_pred = y_pred, test_truth = xy[8:10,1], test_pred = y_test_pred, labels = labels)
+  ax2.pairplot(all_truths=xy[:,1], all_pred=y_pred, test_truths=xy[8:10,1], test_pred=y_test_pred, labels=labels)
   plt.show()
 #+end_src
 ** test other styles
