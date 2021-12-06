@@ -145,10 +145,10 @@ class Interaxes(Axes):
         self.y=y
         self.labels=datalabels
         #plot data
-        def draw_activescatter():
-            self.scatter(self.x, self.y, s=self.s, c=self.c, marker=self.marker,
-                         cmap=self.cmap, norm=self.norm, alpha=self.alpha,
-                         edgecolors=self.edgecolors, picker=True, **kwargs)
+        def draw_activescatter(): #draw functions may be called out of their defining function scope on_click_clear
+            self.scatter(self.x, self.y, self.s=None, self.c=None, self.marker=None, self.cmap=None,
+                         self.norm=None, self.vmin=None, self.vmax=None, self.alpha=None, self.linewidths=None,
+                         self.edgecolors=None, self.plotnonfinite=False, self.data=None, picker=True, **kwargs)
             self.set_xlabel("X")
             self.set_ylabel("Y")
             self.grid()
@@ -301,7 +301,6 @@ class Interaxes(Axes):
             self.activescatter(x=self.all_targets, y=self.all_pred, labels=self.test_labels,
                                c='lawngreen', marker='x', s=60, edgecolors='dimgrey', alpha=0.9,
                                grouplabel='Training', **kwargs)
-            self.set_aspect(1, adjustable='datalim')
             #self.set_xlim([self.get_xlim()[0],self.get_xlim()[1]])
             #self.set_ylim([self.get_ylim()[0],self.get_ylim()[1]])
             self.set_xlabel("Prediction")

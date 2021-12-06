@@ -66,7 +66,7 @@ right handler class from the user-facing superclass instantiation
   import spyglass.EDA
   #+end_src
 ** Basic EDAfig and interaxes invocation
-#+begin_src python :session :exports both :results none  
+#+begin_src python :session :exports both :results none
   eda = spyglass.EDA.EDAFigure
 
   xy = np.random.random((10,2))
