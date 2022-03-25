@@ -59,14 +59,14 @@ right handler class from the user-facing superclass instantiation
 ** supercell visualizer
 ** cupercell with time evolution
 * Usage examples:
-#+begin_src python :session :exports both :results none
+#+begin_src ipython :session :exports both :results none
   import numpy as np
   import pandas as pd
   import matplotlib.pyplot as plt
   import spyglass.EDA
   #+end_src
 ** Basic EDAfig and interaxes invocation
-#+begin_src python :session :exports both :results none
+#+begin_src ipython :session :exports both :results none
   eda = spyglass.EDA.EDAFigure
 
   xy = np.random.random((10,2))
@@ -78,7 +78,7 @@ right handler class from the user-facing superclass instantiation
   plt.show()
 #+end_src
 ** biplot example
-#+begin_src python :session :exports both :results none
+#+begin_src ipython :session :exports both :results none
   from numpy.random import default_rng
   rng = default_rng()
   intpicks = rng.integers(low=1, high=3, size=12)
@@ -97,7 +97,7 @@ right handler class from the user-facing superclass instantiation
   plt.show()
 #+end_src
 ** pairty plot example
-#+begin_src python :session :exports both :results none 
+#+begin_src ipython :session :exports both :results none 
   xy = np.random.random((10,2))
   y_train_pred = xy[0:8,1] + np.random.normal(0, 1, 8)
   y_test_pred = xy[8:10,1] + np.random.normal(0, 2, 2)

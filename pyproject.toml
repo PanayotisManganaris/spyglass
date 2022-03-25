@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spyglass"
-version = "0.1.1"
+version = "0.1.2"
 description = "consistent and convenient visualization tools built to expose standard matplotlib figure objects for customization"
 authors = ["Panayotis Manganaris <panos.manganaris@gmail.com>"]
 

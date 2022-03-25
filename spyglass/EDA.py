@@ -52,7 +52,7 @@ class EDAFigure(Figure):
         #the figure before any additional -- this is bad.
         self.button_clear_all.on_clicked(callback)
     
-class Interaxes(Axes):
+ class Interaxes(Axes):
     """
     matplotlib.axes.Axes class containing methods defining user
     annotate on click actions on member artist objects. It also
@@ -133,9 +133,7 @@ class Interaxes(Axes):
             self.figure.canvas.draw_idle() #force re-draw
             offset += 0.05 # in case of list, alter offset 
 
-    def activescatter(self, x, y, datalabels, self.s=None, self.c=None, self.marker=None, self.cmap=None,
-                      self.norm=None, self.vmin=None, self.vmax=None, self.alpha=None, self.linewidths=None,
-                      self.edgecolors=None, self.plotnonfinite=False, self.data=None **kwargs):
+    def activescatter(self, x, y, datalabels, *args, **kwargs):
         """
         axes scatter plot with interactivity. 
         Should work with subplots and pyplot interactive script syntax as an axis projection
@@ -146,9 +144,7 @@ class Interaxes(Axes):
         self.labels=datalabels
         #plot data
         def draw_activescatter(): #draw functions may be called out of their defining function scope on_click_clear
-            self.scatter(self.x, self.y, self.s=None, self.c=None, self.marker=None, self.cmap=None,
-                         self.norm=None, self.vmin=None, self.vmax=None, self.alpha=None, self.linewidths=None,
-                         self.edgecolors=None, self.plotnonfinite=False, self.data=None, picker=True, **kwargs)
+            self.scatter(self.x, self.y, *args, picker=True, **kwargs)
             self.set_xlabel("X")
             self.set_ylabel("Y")
             self.grid()
