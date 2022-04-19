@@ -1,14 +1,39 @@
 import pandas as pd
+import numpy as np
 
 import matplotlib.pyplot as plt
 import mplcursors
 import seaborn as sns
 
+def _build_frame(y_pred:np.ndarray, y_true:pd.DataFrame):
+    prednames = [name+"_pred" for name in y_true.columns]
+    pred_label = ["pred"]*len(prednames)
+    true_label = ["true"]*len(prednames)
+    mc_ypred = pd.MultiIndex.from_arrays([prednames, pred_label],
+                                         names=["comparison", "xy"])
+    mc_ytrue = pd.MultiIndex.from_arrays([prednames, true_label],
+                                         names=["comparison", "xy"])
+
+    y_pred = pd.DataFrame(y_pred, columns=mc_ypred, index=y_true.index)
+    y_true = pd.DataFrame(y_true.values, columns=mc_ytrue, index=y_true.index)
+    
+    data = pd.concat([y_true, y_pred], axis=1).stack("comparison")
+
+    return data
+
 def parityplot(estimator,
                X:pd.DataFrame,
                y_true:pd.DataFrame, **kwargs):
-               #score_function, ):
-    #Rapidly evaluate a regression model
+    """
+    pass the estimator, a basis and targets to compare against.
+
+    **kwargs are passed to the seaborn FacetGrid
+
+    Rapidly evaluate a regression model in an array of parity plots
+    The main offer is interactivity in the plot.
+
+    The data is also returned for optionally more in-depth plotting.
+    """
     if hasattr(estimator, "predict"):
         y_pred = estimator.predict(X)
     #elif hasattr(estimator, "decision_function"):
@@ -17,44 +42,32 @@ def parityplot(estimator,
     #    y_pred = estimator.predict_proba(X)
     else:
         raise AttributeError("'estimator' does not have predict method")
-    prednames = [name+"_pred" for name in y_true.columns]
-    y_pred = pd.DataFrame(y_pred, columns=prednames, index=y_true.index)
-    data = pd.concat([y_true, y_pred], axis=1)
-    
-    #preferably get key names in a more direct way
-    spliter = data.columns.str.contains('_pred')
-    truenames = data.loc[:, ~spliter].columns
-    prednames = data.loc[:, spliter].columns
+    data = _build_frame(y_pred, y_true)
+    data = data.reset_index().drop("index", axis=1)
 
-    p1 = sns.relplot(kind='scatter',
-                     data=data,
-                     x=truenames[0],
-                     y=prednames[0],
-                     **kwargs)
-    p1.map_dataframe(sns.lineplot,
-                     x=truenames[0],
-                     y=truenames[0],
-                     color='k')
+    p = sns.FacetGrid(data=data,
+                      col="comparison",
+                      **kwargs)
+    p.map_dataframe(sns.lineplot,
+                    x="true",
+                    y="true",
+                    color='k')
+    p.map_dataframe(sns.scatterplot,
+                    x="true",
+                    y="pred")
+    p.add_legend()
 
-    
-
+    #issue: internally plotting is done as a groupby.  then, this
+    #references the absolute index of the plot marker and goes and
+    #looks for the number in the full data set (values towards the end
+    #are never found). simply grouping the data now can't work because
+    #the indices could then mismatch. selection must be obtained with
+    #consciousness of the group somehow...
     mplcursors.cursor(multiple = True).connect(
         "add", lambda sel: sel.annotation.set_text(
-            data.index.get_level_values("Formula")[sel.index])
+            #sel.index
+            data["Formula"].iloc[sel.index]
+        )
     )
 
-    return p1
-
-    # f, ax = plt.subplots(1)
-    # ax = sns.scatterplot(data=data,
-    #                      x=truenames[0],
-    #                      y=prednames[0],
-    #                      ax=ax,
-    #                      **kwargs)
-    # #need version-robust axline tool
-    # ax = sns.lineplot(data=data,
-    #                   x=truenames[0],
-    #                   y=truenames[0],
-    #                   color='k',
-    #                   ax=ax)
-
+    return p, data
