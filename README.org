@@ -10,6 +10,12 @@
 #+exclude_tags: noexport
 #+creator: Emacs 27.2 (Org mode 9.5)
 #+cite_export:
+* TODO Visualization
+Model visualization is dependent on matplotlib. Custom plotting
+functions are available through spyglass -- also an early work in
+progress. spyglass is being developed in parallel for automating the
+process of producing Mannodi Group standard exploratory plots and
+publication quality figures
 * Introduction
 Spyglass is a figure scripting interface branching from
 the first two levels of the [[id:a3ae4a0f-c61e-4f47-9006-846a070e1025][matplotlib architecture]], parallel to
