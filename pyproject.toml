@@ -6,7 +6,7 @@ authors = ["Panayotis Manganaris <panos.manganaris@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1,<3.11"
-matplotlib = "^3.5.0"
+matplotlib = "^3.1.0"
 pandas = "^1.3.4"
 seaborn = "^0.11.2"
 
