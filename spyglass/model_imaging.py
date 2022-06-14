@@ -43,19 +43,17 @@ def parityplot(estimator,
     else:
         raise AttributeError("'estimator' does not have predict method")
     data = _build_frame(y_pred, y_true)
-    data = data.reset_index().drop("index", axis=1)
+    try:
+        data = data.reset_index().drop("index", axis=1)
+    except KeyError:
+        data = data.reset_index().drop("level_0", axis=1)
 
-    p = sns.FacetGrid(data=data,
-                      col="comparison",
-                      **kwargs)
-    p.map_dataframe(sns.lineplot,
-                    x="true",
-                    y="true",
-                    color='k')
-    p.map_dataframe(sns.scatterplot,
-                    x="true",
-                    y="pred")
-    p.add_legend()
+    p = sns.relplot(data=data, x="true", y="pred", **kwargs)
+    for ax in p.figure.axes:
+        xlims = ax.get_xlim()
+        ylims = ax.get_ylim()
+        ax.axline((min(xlims+ylims), min(xlims+ylims)),
+                  (max(xlims+ylims), max(xlims+ylims)), color='k')
 
     #issue: internally plotting is done as a groupby.  then, this
     #references the absolute index of the plot marker and goes and
