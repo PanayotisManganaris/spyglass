@@ -1,5 +1,14 @@
 __version__ = '0.1.2'
 
+import pkg_resources
+
+installed = [pkg.key for pkg in pkg_resources.working_set]
+
+if 'plotly' in installed:
+    from ._plotly_model_imaging import parityplot
+else:
+    from ._sns_model_imaging import parityplot
+    
 #consider moving all of this to a dedicated Backend subpackage? see hvplot package?
 # from spyglass.spyglass.plotmodule import (
 #     PlotModule,
