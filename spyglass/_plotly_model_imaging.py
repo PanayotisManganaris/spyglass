@@ -46,11 +46,11 @@ def parityplot(estimator,
     except KeyError:
         data = data.reset_index().drop("level_0", axis=1)
 
-    p = px.scatter(data, x="true", y="pred", **kwargs)
+    p = px.scatter(data, x="true", y="pred", **kwargs, facet_col="comparison")
     xlims = min(data.true), max(data.true)
     ylims = min(data.pred), max(data.pred)
-    p.add_scatter(x = (min(xlims+ylims), max(xlims+ylims)),
-                  y = (min(xlims+ylims), max(xlims+ylims)),
-                  mode='lines'
-                  row='all', col='all', exclude_empty_subplots=True)
+    p.add_scatter(x = [min(xlims+ylims), max(xlims+ylims)],
+                  y = [min(xlims+ylims), max(xlims+ylims)],
+                  mode='lines', name="parity", marker={"color":"black"},
+                  row='all', col='all')
     return p, data
