@@ -1,9 +1,9 @@
 __version__ = '0.1.2'
 
-from .model_imaging import parityplot
+from .sk_imaging import parityplot, biplot
 
 #generic plotting tools
-from .spyglass import biplot
+#from .spyglass import whatever
 
 __all__ = [
     'parityplot',
