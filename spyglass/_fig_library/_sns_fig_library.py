@@ -30,7 +30,9 @@ def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
     )
     return p
 
-def _make_biplot(data, *, pcaxis, loadings, **kwargs):
+def _make_biplot(*, data:pd.DataFrame,
+                 pcaxis, loadings:np.ndarray,
+                 **kwargs):
     """
     Project PCA data onto plane. annotate the major components
     contributing to the plane axes

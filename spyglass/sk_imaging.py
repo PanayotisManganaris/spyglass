@@ -1,7 +1,7 @@
 import pandas as pd
 
 from ._utils import _build_frame
-from ._fig_library import _make_parity_fig, _make_projection_fig
+from ._fig_library import _make_parity_fig, _make_biplot
 
 def parityplot(estimator,
                X:pd.DataFrame,
@@ -38,9 +38,12 @@ def parityplot(estimator,
                          facet_col="comparison")
     return p, data
 
-def biplot(data, *, pcaxis, **kwargs):
+def biplot(data, pcaxis, **kwargs):
     """
-    simple wrapper that both performs pca and plots the resulting projections
+    Takes data for PCA transformation and a fitted PCA estimator.
+
+    handles transforming the data and plotting the resulting
+    projection with indicated loadings.
     """
     loadings = pcaxis.components_.T * np.sqrt(pcaxis.explained_variance_)
     pcadata = pd.DataFrame(
@@ -50,6 +53,7 @@ def biplot(data, *, pcaxis, **kwargs):
     )
     p = _make_biplot(data=pcadata,
                      pcaxis=pcaxis,
+                     loadings=loadings,
                      **kwargs)
 
     return p
