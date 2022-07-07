@@ -1,14 +1,14 @@
 __version__ = '0.1.2'
 
-import pkg_resources
+from .model_imaging import parityplot
 
-installed = [pkg.key for pkg in pkg_resources.working_set]
+#generic plotting tools
+from .spyglass import biplot
 
-if 'plotly' in installed:
-    from ._plotly_model_imaging import parityplot
-else:
-    from ._sns_model_imaging import parityplot
-    
+__all__ = [
+    'parityplot',
+    'biplot',
+]
 #consider moving all of this to a dedicated Backend subpackage? see hvplot package?
 # from spyglass.spyglass.plotmodule import (
 #     PlotModule,
