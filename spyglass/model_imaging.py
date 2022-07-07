@@ -42,18 +42,14 @@ def biplot(data, *, pcaxis, **kwargs):
     """
     simple wrapper that both performs pca and plots the resulting projections
     """
-    transform_matrix = pd.DataFrame(
-        pcaxis.components_.T * np.sqrt(pcaxis.explained_variance_),
-        index=data.columns,
-        columns=data.columns
-    )
+    loadings = pcaxis.components_.T * np.sqrt(pcaxis.explained_variance_)
     pcadata = pd.DataFrame(
         pcaxis.transform(data),
         index=data.index,
         columns=[f'pc_{i}' for i in range(pcaxis.n_components)]
     )
-    p = _make_projection_fig(data=pcadata,
-                             pcaxis=pcaxis,
-                             **kwargs)
+    p = _make_biplot(data=pcadata,
+                     pcaxis=pcaxis,
+                     **kwargs)
 
     return p

@@ -30,23 +30,19 @@ def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
     )
     return p
 
-def _make_projection_fig(data, *, pcaxis, **kwargs):
+def _make_biplot(data, *, pcaxis, loadings, **kwargs):
     """
     Project PCA data onto plane. annotate the major components
     contributing to the plane axes
     """
     p = sns.scatterplot(data = data, **kwargs)
-    xlim = min(map(abs,p.figure.axes[0].get_xlim()))
-    ylim = min(map(abs,p.figure.axes[0].get_ylim()))
-    xscaler = xlim if xlim > 1 else 1.0
-    yscaler = ylim if ylim > 1 else 1.0
-    for i in range(pcaxis.n_components):
+    for i, load in enumerate(loadings):
         p.figure.axes[0].arrow(0, 0,
-                               transform_matrix.iloc[i, 0] * xscaler,
-                               transform_matrix.iloc[i, 1] * yscaler,
+                               load[0],
+                               load,
                                color = 'r', alpha = 0.5)
-        p.figure.axes[0].text(transform_matrix.iloc[i, 0] * xscaler,
-                              transform_matrix.iloc[i, 1] * yscaler,
+        p.figure.axes[0].text(load,
+                              ,
                               data.columns[i],
                               color = 'g', ha = 'center', va = 'center')
 
