@@ -18,11 +18,27 @@ def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
     return p
 
 def _make_biplot(*, data:pd.DataFrame,
-                 pcaxis, loadings:np.ndarray,
+                 loadings:np.ndarray,
+                 features:np.ndarray,
                  **kwargs):
     """
     Project PCA data onto plane. annotate the major components
     contributing to the plane axes
     """
     p = px.scatter(data=data, **kwargs)
+    for i, feature in enumerate(features):
+        p.add_shape(
+            type='line',
+            x0=0, y0=0,
+            x1=loadings[i, 0],
+            y1=loadings[i, 1],
+        )
+        p.add_annotation(
+            x=loadings[i, 0],
+            y=loadings[i, 1],
+            ax=0, ay=0,
+            xanchor="center",
+            yanchor="bottom",
+            text=feature,
+        )
     return p
