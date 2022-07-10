@@ -17,15 +17,18 @@ def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
                   row='all', col='all')
     return p
 
-def _make_biplot(*, data:pd.DataFrame,
+def _make_biplot(*, data:np.ndarray,
                  loadings:np.ndarray,
                  features:np.ndarray,
+                 labels:np.ndarray=None,
                  **kwargs):
     """
     Project PCA data onto plane. annotate the major components
     contributing to the plane axes
     """
-    p = px.scatter(data=data, **kwargs)
+    p = px.scatter(data, **kwargs)
+    p.update_xaxes(title_text=labels[0])
+    p.update_yaxes(title_text=labels[1])
     for i, feature in enumerate(features):
         p.add_shape(
             type='line',

@@ -30,27 +30,29 @@ def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
     )
     return p
 
-def _make_biplot(*, data:pd.DataFrame,
+def _make_biplot(*, data:np.ndarray,
                  loadings:np.ndarray,
                  features:np.ndarray,
+                 labels:np.ndarray=None,
                  **kwargs):
     """
     Project PCA data onto plane. annotate the major components
     contributing to the plane axes
     """
+    data = pd.DataFrame(data)
     p = sns.scatterplot(data=data, **kwargs)
     for i, features in enumerate(features):
         p.figure.axes[0].arrow(
             0, 0,
             loadings[i,0],
             loadings[i,1],
-            color = 'r', alpha = 0.5
+            color = 'k', alpha = 0.5
         )
         p.figure.axes[0].text(
             loadings[i,0],
             loadings[i,1],
             data.columns[i],
-            color = 'g', ha = 'center', va = 'center'
+            color = 'k', ha = 'center', va = 'center'
         )
 
     mplcursors.cursor(multiple = True).connect(
