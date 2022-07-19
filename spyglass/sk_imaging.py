@@ -37,7 +37,7 @@ def parityplot(estimator,
 
     p = _make_parity_fig(data,
                          x='true', y='pred',
-                         facet_col="comparison")
+                         facet_col="comparison", **kwargs)
     return p, data
 
 def biplot(data, pcaxis, **kwargs):
