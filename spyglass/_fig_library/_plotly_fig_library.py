@@ -5,8 +5,8 @@ import plotly.express as px
 
 def _make_parity_fig(data:pd.DataFrame, x:str, y:str, **kwargs):
     """
-    plot an array of figures with an line of slope=1 overlaid onto
-    each one
+    plot an array of one or more figures with an line of slope=1
+    overlaid onto each one
     """
     p = px.scatter(data, x=x, y=y, **kwargs)
     xlims = min(data[x]), max(data[y])

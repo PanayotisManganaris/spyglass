@@ -2,38 +2,49 @@ import pandas as pd
 import numpy as np
 import re
 
-from ._utils import _build_frame
+from ._utils import _build_frame, _grouper
 from ._fig_library import _make_parity_fig, _make_biplot
 
-def parityplot(estimator,
-               X:pd.DataFrame,
-               y_true:pd.DataFrame, **kwargs):
+def parityplot(estimator, *args, **kwargs):
     """
-    pass the estimator, a basis and targets to compare against.
+    Qualitatively evaluate a regression model using array of parity plots
 
-    **kwargs are passed to underlying plot library api:
+    args:
+    1. the estimator to explore
+    2. *args holds arbitrarily many triplets of:
+       - X :: a domain
+       - Y :: a co-domain
+       - name :: a partition name
+    to form and check predictions at different partitions.
+
+    incomplete triplets are ignored
+
+    **kwargs are passed to underlying plot library API:
     - plotly if available
     - seaborn otherwise
 
-    Qualitatively evaluate a regression model using array of parity
-    plots. Where possible, the plot will support interactive
-    annotation.
-
     The data is also returned for further plotting or tabulation.
     """
-    if hasattr(estimator, "predict"):
-        y_pred = estimator.predict(X)
-    #elif hasattr(estimator, "decision_function"):
-    #    y_pred = estimator.decision_function(X)
-    #elif hasattr(estimator, "predict_proba"):
-    #    y_pred = estimator.predict_proba(X)
-    else:
-        raise AttributeError("'estimator' does not have predict method")
-    data = _build_frame(y_pred, y_true)
-    try:
-        data = data.reset_index().drop("index", axis=1)
-    except KeyError:
-        data = data.reset_index().drop("level_0", axis=1)
+    index_items=[v for k,v in kwargs.items() if isinstance(v, (pd.DataFrame, pd.Series))]
+    ldata = []
+    for triplet in _grouper(args, 3):
+        if hasattr(estimator, "predict"):
+            y_pred = estimator.predict(triplet[0])
+        #elif hasattr(estimator, "decision_function"):
+        #    y_pred = estimator.decision_function(X)
+        #elif hasattr(estimator, "predict_proba"):
+        #    y_pred = estimator.predict_proba(X)
+        else:
+            raise AttributeError("'estimator' does not have predict method")
+        ldata.append(
+            _build_frame(y_pred, triplet[1])
+            .reset_index(level='comparison')
+            .assign(partition=triplet[2])
+        )
+    data = pd.concat(ldata, axis=0)
+
+    if index_items:
+        data = data.reindex(index=index_items[0].index)
 
     p = _make_parity_fig(data,
                          x='true', y='pred',

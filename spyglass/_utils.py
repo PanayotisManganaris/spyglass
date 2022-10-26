@@ -4,6 +4,12 @@ import numpy as np
 
 import io
 import pickle
+from itertools import zip_longest
+
+def _grouper(iterable, chunksize):
+    "Collect data into non-overlapping fixed-length chunks or blocks"
+    args = [iter(iterable)] * chunksize
+    return zip(*args)
 
 def _build_frame(y_pred:np.ndarray, y_true:pd.DataFrame):
     """
