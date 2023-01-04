@@ -16,7 +16,7 @@ def _build_frame(y_pred:np.ndarray, y_true:pd.DataFrame):
     Build a wide table of true and predicted values, stacked by
     multi-targets
     """
-    prednames = [name+"_pred" for name in y_true.columns]
+    prednames = [str(name)+"_pred" for name in y_true.columns]
     pred_label = ["pred"]*len(prednames)
     true_label = ["true"]*len(prednames)
     mc_ypred = pd.MultiIndex.from_arrays([prednames, pred_label],

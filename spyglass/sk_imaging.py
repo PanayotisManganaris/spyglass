@@ -5,7 +5,7 @@ import re
 from ._utils import _build_frame, _grouper
 from ._fig_library import _make_parity_fig, _make_biplot
 
-def parityplot(estimator, *args, **kwargs):
+def parityplot(estimator, *args, estimator_kwargs:dict={}, **kwargs):
     """
     Qualitatively evaluate a regression model using array of parity plots
 
@@ -29,7 +29,7 @@ def parityplot(estimator, *args, **kwargs):
     ldata = []
     for triplet in _grouper(args, 3):
         if hasattr(estimator, "predict"):
-            y_pred = estimator.predict(triplet[0])
+            y_pred = estimator.predict(triplet[0], **estimator_kwargs)
         #elif hasattr(estimator, "decision_function"):
         #    y_pred = estimator.decision_function(X)
         #elif hasattr(estimator, "predict_proba"):
@@ -44,6 +44,7 @@ def parityplot(estimator, *args, **kwargs):
     data = pd.concat(ldata, axis=0)
 
     if index_items:
+        #raise alarm if multiple possible indexes are present
         data = data.reindex(index=index_items[0].index)
 
     p = _make_parity_fig(data,
